@@ -3,12 +3,20 @@ import { app, Menu, shell, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { log } from '@janhq/core/node'
 const isMac = process.platform === 'darwin'
+import { windowManager } from '../managers/window'
 
 const template: (Electron.MenuItemConstructorOptions | Electron.MenuItem)[] = [
   {
     label: app.name,
     submenu: [
-      { role: 'about' },
+      {
+        label: `About ${app.name}`,
+        click: () =>
+          dialog.showMessageBox({
+            title: `Jan`,
+            message: `Jan Version v${app.getVersion()}\n\nCopyright © 2024 Jan`,
+          }),
+      },
       {
         label: 'Check for Updates...',
         click: () =>
@@ -36,6 +44,14 @@ const template: (Electron.MenuItemConstructorOptions | Electron.MenuItem)[] = [
       { role: 'hide' },
       { role: 'hideOthers' },
       { role: 'unhide' },
+      {
+        label: `Settings`,
+        accelerator: 'CmdOrCtrl+,',
+        click: () => {
+          windowManager.showMainWindow()
+          windowManager.sendMainViewState('Settings')
+        },
+      },
       { type: 'separator' },
       { role: 'quit' },
     ],
@@ -105,7 +121,8 @@ const template: (Electron.MenuItemConstructorOptions | Electron.MenuItem)[] = [
   },
 ]
 
+export const menu = Menu.buildFromTemplate(template)
+
 export const setupMenu = () => {
-  const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 }
